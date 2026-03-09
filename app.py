@@ -2,9 +2,16 @@ from flask import Flask, render_template, request, jsonify
 from pynput.keyboard import Controller, Key ,KeyCode
 import threading
 import os
+import qrcode
+import ctypes
 
 app = Flask(__name__)
 keyboard = Controller()
+
+# Windows 常量定义
+VK_RETURN = 0x0D
+KEYEVENTF_EXTENDEDKEY = 0x0001
+KEYEVENTF_KEYUP = 0x0002
 
 # 按键映射
 KEY_MAPPING = {
@@ -19,7 +26,7 @@ KEY_MAPPING = {
     '8': KeyCode.from_vk(104),
     '9': KeyCode.from_vk(105),
 
-    'enter': Key.enter,
+    #'enter': KeyCode.from_vk(13),
     '.': KeyCode.from_vk(110),
     '+': KeyCode.from_vk(107), 
     '-': KeyCode.from_vk(109), 
@@ -47,10 +54,16 @@ def keydown():
     try:
         data = request.get_json()
         key = data.get('key', '')
+        if key == 'enter':
+            # 强制发送带“扩展标志”的 Enter (即数字小键盘 Enter)
+            ctypes.windll.user32.keybd_event(VK_RETURN, 0, KEYEVENTF_EXTENDEDKEY, 0)
+            return jsonify({'status': 'success', 'key': 'numpad_enter'})
+    
         if key in KEY_MAPPING:
             keyboard.press(KEY_MAPPING[key])
             return jsonify({'status': 'success', 'action': 'down', 'key': key})
         return jsonify({'status': 'error', 'message': 'Invalid key'}), 400
+    
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
@@ -60,6 +73,11 @@ def keyup():
     try:
         data = request.get_json()
         key = data.get('key', '')
+        if key == 'enter':
+            # 释放带“扩展标志”的 Enter
+            ctypes.windll.user32.keybd_event(VK_RETURN, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0)
+            return jsonify({'status': 'success'})
+        
         if key in KEY_MAPPING:
             keyboard.release(KEY_MAPPING[key])
             return jsonify({'status': 'success', 'action': 'up', 'key': key})
@@ -103,6 +121,16 @@ def start_ngrok():
         print(f"\n【ngrok错误】{e}")
         print("请确保已注册ngrok并配置authtoken\n")
         return None
+    
+def show_qr(url):
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(url)
+    qr.make(fit=True)
+    # 在终端直接打印二维码（字符版）
+    qr.print_ascii()
+    # 或者直接弹出图片
+    # img = qr.make_image()
+    # img.show()
 
 if __name__ == '__main__':
     # 获取本地IP
@@ -114,7 +142,7 @@ if __name__ == '__main__':
     
     # 尝试启动ngrok
     ngrok_url = start_ngrok()
-    
+    url = f"http://{local_ip}:5000"
     print("\n📱 访问地址:")
     print(f"   本地访问: http://localhost:5000")
     print(f"   局域网访问: http://{local_ip}:5000")
@@ -122,6 +150,7 @@ if __name__ == '__main__':
         print(f"   公网访问: {ngrok_url}")
     print("\n💡 使用手机浏览器打开以上任一地址即可使用")
     print("="*60 + "\n")
-    
+    print(f"扫描下方二维码访问:")
+    show_qr(url)
     # 启动Flask服务器
     app.run(host='0.0.0.0', port=5000, debug=False)
