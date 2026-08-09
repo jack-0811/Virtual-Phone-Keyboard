@@ -1,170 +1,82 @@
-# 📱 手机虚拟键盘
+# 📱 Phone Virtual Keyboard
+Turn your phone into a wireless numpad for your PC! Connect via the web to control your computer's input using your phone's screen.
+Mainly because I don't have numpad on my keyboard and I really need it in some situation (like gaming/working softwares)
 
-将手机变成电脑的无线数字键盘！通过网页连接，实现手机按键控制电脑输入。
+## ✨ Features
 
-## ✨ 功能特点
+-  **Digital numpad** - Includes 0-9, decimal point, backspace, and enter. Perfect for fixing the "missing numpad" problem on 86-key mechanical keyboards.
+-  **Wireless** - Connects over WiFi. No cables needed.
+-  **Real-time** - Instant response with low latency.
+-  **Tunneling** - Supports public access via ngrok
 
-- 🎹 **数字小键盘** - 包含0-9数字、小数点、退格、回车键，解决86键机械键盘没有数字小键盘烦恼
-- 🌐 **无线连接** - 通过WiFi连接，无需数据线
-- ⚡ **实时响应** - 按键即时生效，延迟低
-- 🔒 **局域网安全** - 默认局域网访问，数据不经过外网
-- 🌍 **内网穿透** - 支持ngrok公网访问（可选）
-
-## 📋 系统要求
+## 📋 System requirements
 
 - Windows 7/10/11
-- Python 3.7 或更高版本
-- 电脑和手机在同一WiFi网络下（局域网访问）
+- Python 3.7 or higher
+- Phone and PC connected to the same WiFi
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 方法一：一键启动（推荐）
+### Method 1: One-click Start (Recommended)
 
-1. 双击运行 `start.bat`
-2. 等待服务器启动
-3. 使用手机浏览器访问显示的地址
+1. Double-click `start.bat`
+2. Wait for the server to launch.
+3. Open the displayed address on your phone's browser or scan the QR Code.
 
-### 方法二：手动安装
+### Method 2: Manual Setup
 
-1. **安装依赖**
+1. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-2. **启动服务器**
+2. **Start the server**
 ```bash
 python app.py
 ```
 
-3. **手机访问**
-   - 查看命令行输出的访问地址
-   - 使用手机浏览器打开对应地址
+3. **Access from phone**
 
-## 📱 使用方法
+### Public Access (via ngrok)
 
-### 局域网访问（默认）
+If you need to access the keyboard from a different network:
 
-1. 确保电脑和手机连接到同一个WiFi
-2. 启动服务器后，查看命令行显示的局域网IP地址
-3. 在手机浏览器中输入该地址，例如：`http://192.168.1.100:5000`
-4. 打开网页后即可使用虚拟键盘
-
-### 公网访问（使用ngrok）
-
-如果需要在不同网络环境下访问，可以使用内网穿透：
-
-1. **安装ngrok**
+1. **Install ngrok**
 ```bash
 pip install pyngrok
 ```
 
-2. **注册并配置ngrok**
-   - 访问 https://ngrok.com/ 注册账号
-   - 获取authtoken
-   - 运行命令配置：
+2. **Register & Configure ngrok**
+   - Sign up at https://ngrok.com/
+   - Get your auth token.
+   - Run the config command:
    ```bash
    ngrok authtoken YOUR_AUTH_TOKEN
    ```
 
-3. **启动服务器**
-   - 程序会自动启动ngrok
-   - 查看命令行输出的公网地址
-   - 在任何地方使用手机访问该地址
+3. **Start the server**
+   - The script will automatically launch ngrok.
+   - Check the terminal for the public URL.
+   - Access that URL from your phone, anywhere.
 
-## 🔧 配置说明
+## 🔧 Configuration
 
-### 修改端口
+### Changing the Port
 
-编辑 `app.py` 文件，找到最后一行：
+Edit `app.py` and find the last line:
+
 ```python
 app.run(host='0.0.0.0', port=5000, debug=False)
 ```
-将 `port=5000` 改为您想要的端口号。
+Change port=5000 to whatever port you prefer.
 
-### 添加更多按键
+### Adding More Keys
 
-在 `app.py` 中的 `KEY_MAPPING` 字典添加按键映射：
+Add mappings to the `KEY_MAPPING` dictionary in `app.py`:
 ```python
 KEY_MAPPING = {
-    # 现有按键...
-    'a': 'a',  # 添加字母a
-    'ctrl': Key.ctrl,  # 添加Ctrl键
+    'a': 'a',  # Add letter a
+    'ctrl': Key.ctrl,  # Add Ctrl
 }
 ```
-
-然后在 `templates/index.html` 中添加对应的按钮。
-
-## 📁 项目结构
-
-```
-PhoneKeyboard/
-│
-├── app.py              # Flask后端服务器
-├── templates/
-│   └── index.html      # 前端网页界面
-├── requirements.txt    # Python依赖
-├── start.bat          # Windows启动脚本
-└── README.md          # 说明文档
-```
-
-## ❓ 常见问题
-
-### Q: 手机无法连接？
-A: 请确保：
-1. 电脑和手机在同一WiFi网络
-2. 电脑防火墙允许5000端口（或您设置的端口）
-3. 使用的是正确的IP地址
-
-### Q: 如何允许防火墙访问？
-A: Windows Defender防火墙设置：
-1. 控制面板 → Windows Defender 防火墙 → 高级设置
-2. 入站规则 → 新建规则
-3. 选择"端口" → TCP → 特定本地端口：5000
-4. 允许连接 → 完成
-
-### Q: 按键没反应？
-A: 检查：
-1. 网页显示"已连接"状态
-2. 命令行是否显示错误信息
-3. 目标应用程序是否在前台
-
-### Q: ngrok连接失败？
-A: 
-1. 确认已安装pyngrok：`pip install pyngrok`
-2. 确认已配置authtoken
-3. 检查网络连接
-
-## 🔒 安全提示
-
-- 局域网访问模式下，只有同一网络的设备能访问
-- 使用ngrok等内网穿透时，公网地址会暴露，请注意安全
-- 建议仅在可信网络环境下使用
-- 可以在ngrok中配置密码保护
-
-## 📝 更新日志
-
-### v1.0 (2026-02-26)
-- 初始版本发布
-- 实现数字小键盘功能
-- 支持局域网访问
-- 集成ngrok内网穿透
-- 优化手机端界面体验
-
-### v1.0.1 （2026-03-09）
-- 修复小键盘的enter键不起作用的问题
-- 增加二维码方便更快连接
-
-### v1.1计划
-- 更方便的前端自定义按键添加
-- 按键布局自行添加
-- 一键切换按键布局用于不同应用，实现控制台效果
-
-## 📄 许可证
-
-MIT License
-
-## 🤝 贡献
-
-欢迎提交Issue和Pull Request！
-
-
+Then, add the corresponding button to templates/index.html
